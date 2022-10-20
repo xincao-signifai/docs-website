@@ -2,7 +2,6 @@ const path = require('path');
 const { prop } = require('./scripts/utils/functional.js');
 const externalRedirects = require('./src/data/external-redirects.json');
 const { createFilePath } = require('gatsby-source-filesystem');
-const createSingleNav = require('./scripts/createSingleNav');
 
 const TEMPLATE_DIR = 'src/templates/';
 const TRAILING_SLASH = /\/$/;
@@ -29,10 +28,6 @@ exports.onCreateWebpackConfig = ({ actions }) => {
       },
     },
   });
-};
-
-exports.onPreBootstrap = () => {
-  createSingleNav();
 };
 
 exports.onCreateNode = ({ node, getNode, actions }) => {
@@ -305,7 +300,8 @@ exports.createSchemaCustomization = ({ actions }) => {
   const typeDefs = `
   type NavYaml implements Node @dontInfer {
     id: ID!
-    title: String!
+    title: String
+    category: String
     path: String
     icon: String
     filterable: Boolean!
