@@ -33,7 +33,7 @@ const RootNavigation = ({ nav, className }) => {
         if (page.title === 'section-break') {
           return <hr />;
         }
-        if (page.title && !page.url && !subNav) {
+        if (page.title && !page.url && !page.pages && !subNav) {
           return (
             <p
               css={css`
@@ -54,7 +54,7 @@ const RootNavigation = ({ nav, className }) => {
 };
 
 RootNavigation.propTypes = {
-  nav: PropTypes.arrayOf(PropTypes.object).isRequired,
+  nav: PropTypes.object.isRequired,
 };
 
 export default RootNavigation;

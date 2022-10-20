@@ -265,38 +265,30 @@ const groupBy = (arr, fn) =>
 const createNav = async ({ createNodeId, nodeModel }) => {
   const { entries } = await nodeModel.findAll({ type: 'NavYaml' });
 
-  const allNavYamlNodes = Array.from(entries).sort((a, b) =>
-    a.title.localeCompare(b.title)
-  );
-
-  const nav = allNavYamlNodes.find((nav) => findPage(nav, '/'));
-
-  const whatsNewIndex = nav.pages.findIndex(
-    (item) => item.title === `What's new?`
-  );
-  const releaseNotesIndex = nav.pages.findIndex(
-    (item) => item.title === `Release notes`
-  );
+  const allNavYamlNodes = Array.from(entries);
   const whatsNewNav = await createWhatsNewNav({ createNodeId, nodeModel });
   const releaseNotesNav = await createReleaseNotesNav({
     createNodeId,
     nodeModel,
   });
-
-  const rootNavPages = [...nav.pages];
-  rootNavPages[whatsNewIndex] = {
-    ...rootNavPages[whatsNewIndex],
-    pages: whatsNewNav.pages,
-  };
-  rootNavPages[releaseNotesIndex] = {
-    ...rootNavPages[releaseNotesIndex],
-    pages: releaseNotesNav.pages,
-  };
-
+  const rootNav = allNavYamlNodes.find((nav) => nav.title === 'root');
+  const rootNavPages = rootNav.pages.map((navItem) => {
+    const subNav = allNavYamlNodes.find((nav) => nav.category === navItem.path);
+    switch (true) {
+      case navItem.path?.includes('/') || !navItem.path:
+        return navItem;
+      case navItem.path === 'whats-new':
+        return whatsNewNav;
+      case navItem.path === 'release-notes':
+        return releaseNotesNav;
+      default:
+        return { ...navItem, pages: subNav.pages };
+    }
+  });
   return {
-    ...nav,
+    ...rootNav,
     pages: [...rootNavPages],
-    id: createNodeId(nav.title),
+    id: createNodeId(rootNav.title),
   };
 };
 
